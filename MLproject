@@ -1,0 +1,25 @@
+name: mlproject_template_python
+
+meta_data:
+  display_name: MLproject Template (Python)
+  description: Linear regression from rainfall and temperature to disease cases. A starting point for new models.
+
+required_covariates:
+  - rainfall
+  - mean_temperature
+
+uv_env: pyproject.toml
+
+entry_points:
+  train:
+    parameters:
+      train_data: str
+      model: str
+    command: "python train.py {train_data} {model}"
+  predict:
+    parameters:
+      historic_data: str
+      future_data: str
+      model: str
+      out_file: str
+    command: "python predict.py {model} {historic_data} {future_data} {out_file}"
