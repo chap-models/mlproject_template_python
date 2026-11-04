@@ -1,0 +1,44 @@
+# Builds the Docker image, starts it and checks that Chap can evaluate the running model.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  docker-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: model:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Start the model service
+        run: docker run -d --name model -p 9090:8000 model:ci
+
+      - name: Wait for the service
+        run: |
+          for i in $(seq 1 60); do
+            curl -fsS http://localhost:9090/health && exit 0
+            sleep 2
+          done
+          docker logs model
+          exit 1
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Evaluate the running service with Chap
+        run: uvx --python 3.13 --from chap-core chap eval --model-name http://localhost:9090 --run-config.is-chapkit-model --dataset-csv input/trainData.csv --output-file eval.nc
+
+      - name: Service logs
+        if: always()
+        run: docker logs model

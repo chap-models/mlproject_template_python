@@ -4,13 +4,13 @@ A minimal template for writing a Chap-compatible forecasting model in Python. Yo
 
 The model learns a linear regression from rainfall and temperature to disease cases in the same month. It is not meant to be a good model; the point is to show the steps from a script on your machine to a model running in Chap.
 
-The full walkthrough is in the Chap docs: [Build a model from an MLproject file](https://chap.dhis2.org/chap-modeling-platform/external_models/mlproject_tutorial/). An R version of this template is [mlproject_template_r](https://github.com/chap-models/mlproject_template_r).
+The full walkthrough is in the Chap docs: [Build a new model from a template](https://chap.dhis2.org/chap-modeling-platform/external_models/mlproject_tutorial/). An R version of this template is [mlproject_template_r](https://github.com/chap-models/mlproject_template_r).
 
 ## Requirements
 
 - [uv](https://docs.astral.sh/uv/)
 - [chap-core](https://chap.dhis2.org/chap-modeling-platform/chap-cli/chap-core-cli-setup/) 2.5.0 or newer, for step 2
-- Docker, for step 3
+- [Docker](https://docs.docker.com/get-started/get-docker/), for step 3 only
 
 ## Repository structure
 
@@ -22,6 +22,8 @@ The full walkthrough is in the Chap docs: [Build a model from an MLproject file]
 ├── pyproject.toml   # Python dependencies
 ├── isolated_run.py  # Runs train and predict without Chap
 ├── Dockerfile       # Packages the model as a chapkit service
+├── compose.yml      # Builds and starts the image with docker compose
+├── .github/         # Workflows that test and publish the image
 ├── input/           # Small example dataset
 └── output/          # Written by isolated_run.py
 ```
@@ -46,19 +48,29 @@ Chap reads `MLproject`, sets up the uv environment, starts the model as a chapki
 
 If you use other columns from the dataset, list them under `required_covariates` in `MLproject`.
 
-## 3. Deploy the model
+## 3. Package the model as a Docker image
 
-Build an image and start it:
+Build the image and start it:
 
 ```console
-docker build -t my-model .
-docker run --rm -p 9090:8000 my-model
+docker compose up --build
 ```
 
-The image is based on `chapkit-py-cli`, which runs the `MLproject` as a chapkit service on port 8000. Evaluate the running service with:
+The image is based on `chapkit-py-cli`, which runs the `MLproject` as a chapkit service. Your scripts are copied in unchanged. The model is now at http://localhost:9090. In another terminal, check that Chap can use it:
 
 ```console
 chap eval --model-name http://localhost:9090 --run-config.is-chapkit-model --dataset-csv input/trainData.csv --output-file output/eval.nc
 ```
+
+Stop it with `Ctrl+C`, or `docker compose down`.
+
+### Publish the image
+
+Push the repository to GitHub. Two workflows in `.github/workflows` then run on every push to `main`:
+
+- `ci.yml` builds the image, starts it and runs `chap eval` against it.
+- `publish-docker.yml` publishes the image to the GitHub Container Registry as `ghcr.io/<owner>/<repo>:latest`, plus a version tag when you push a tag such as `v1.0.0`.
+
+The first time, check the image under **Packages** on your GitHub profile or organisation page. If it is private, change its visibility to public so that a Chap installation can pull it.
 
 To use the model from the Chap modeling app, run the image next to Chap and let it register itself. See [Running Your Own Model](https://chap.dhis2.org/chap-modeling-platform/modeling-app/running-your-own-model/).

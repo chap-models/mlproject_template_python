@@ -1,0 +1,16 @@
+services:
+  mlproject_template_python:
+    build:
+      context: .
+      args:
+        # Reported as the model's git revision: GIT_REVISION=$(git rev-parse HEAD) docker compose up --build
+        GIT_REVISION: ${GIT_REVISION:-}
+    # To run the image built by the GitHub workflow instead, replace build: with
+    # image: ghcr.io/<your-github-user-or-org>/<your-repo>:latest
+    ports:
+      # host:container. The model is at http://localhost:9090
+      - "9090:8000"
+    # To register the model with a Chap installation on startup, uncomment:
+    # environment:
+    #   SERVICEKIT_ORCHESTRATOR_URL: http://chap:8000/v2/services/$$register
+    #   SERVICEKIT_REGISTRATION_KEY: ${SERVICEKIT_REGISTRATION_KEY:-}
