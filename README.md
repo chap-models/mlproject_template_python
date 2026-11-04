@@ -66,10 +66,16 @@ Stop it with `Ctrl+C`, or `docker compose down`.
 
 ### Publish the image
 
-Push the repository to GitHub. Two workflows in `.github/workflows` then run on every push to `main`:
+GitHub builds and publishes the image every time you push to `main`. To push, you need your own copy of this repository: click **Use this template** on GitHub, then clone your copy. Commit and push your changes:
 
-- `ci.yml` builds the image, starts it and runs `chap eval` against it.
-- `publish-docker.yml` publishes the image to the GitHub Container Registry as `ghcr.io/<owner>/<repo>:latest`, plus a version tag when you push a tag such as `v1.0.0`.
+```console
+git add -A && git commit -m "Update the model" && git push
+```
+
+The **Actions** tab of your repository then shows two workflows from `.github/workflows`:
+
+- **CI** (`ci.yml`) builds the image, starts it and runs `chap eval` against it.
+- **Publish Docker image** (`publish-docker.yml`) publishes the image to the GitHub Container Registry as `ghcr.io/<owner>/<repo>:latest`, plus a version tag when you push a tag such as `v1.0.0`.
 
 The first time, check the image under **Packages** on your GitHub profile or organisation page. If it is private, change its visibility to public so that a Chap installation can pull it.
 
