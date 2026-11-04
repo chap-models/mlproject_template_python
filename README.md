@@ -4,7 +4,7 @@ A minimal template for writing a Chap-compatible forecasting model in Python. Yo
 
 The model learns a linear regression from rainfall and temperature to disease cases in the same month. It is not meant to be a good model; the point is to show the steps from a script on your machine to a model running in Chap.
 
-The full walkthrough is in the Chap docs: [Build a new model from a template](https://chap.dhis2.org/chap-modeling-platform/external_models/mlproject_tutorial/). An R version of this template is [mlproject_template_r](https://github.com/chap-models/mlproject_template_r).
+The full walkthrough is in the Chap docs: [Build a new model from a template](https://chap.dhis2.org/chap-modeling-platform/external_models/mlproject_tutorial/). If you already have a model and want to make it Chap-compatible, follow [Bring your existing model to Chap](https://chap.dhis2.org/chap-modeling-platform/external_models/existing_model/) instead, and copy files from this template as it describes. An R version of this template is [mlproject_template_r](https://github.com/chap-models/mlproject_template_r).
 
 ## Requirements
 
